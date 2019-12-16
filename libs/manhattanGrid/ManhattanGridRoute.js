@@ -1,9 +1,6 @@
 module.exports = class ManhattanGridRoute {
-    grid = {
-        0: {
-            0: true
-        }
-    };
+
+    coords = [];
 
     currentPosition = { x: 0, y: 0 };
 
@@ -24,23 +21,22 @@ module.exports = class ManhattanGridRoute {
                     break;
             }
 
-            this.addCurrentPosition();
+            const { x, y } = this.currentPosition;
+
+            this.coords.push({
+                x,
+                y,
+                address: `${x},${y}`,
+                distance: Math.abs(x) + Math.abs(y),
+                currentDirection: `${direction}${distance}`,
+                directionIndex: i,
+            });
         }
-    }
-
-    addCurrentPosition() {
-        const {x, y} = this.currentPosition;
-
-        if (!this.grid[x]) {
-            this.grid[x] = {}
-        }
-
-        this.grid[x][y] = true;
     }
 
     static createFromDirections(directions = []) {
         const grid = new ManhattanGridRoute();
-        const test = /(?<direction>[UDLR])(?<distance>\d+?)/;
+        const test = /(?<direction>[UDLR])(?<distance>\d+)/;
 
         for (const direction of directions) {
             const result = test.exec(direction);
