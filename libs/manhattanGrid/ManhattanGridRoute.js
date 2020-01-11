@@ -1,11 +1,31 @@
 module.exports = class ManhattanGridRoute {
 
     coords = [];
+    vectors = [];
+    horizontalVectors = [];
+    verticalVectors = [];
 
+    totalDistance = 0;
     currentPosition = { x: 0, y: 0 };
 
-    addDirection(direction, distance) {
-        for (let i = 0; i < distance; i++) {
+    addDirection(direction, length) {
+        const vector = {
+            start: { ...this.currentPosition }, // need to be topLeft xy and bottomRight xy
+            direction,
+            length,
+            startDistance: this.totalDistance,
+        };
+
+        this.vectors.push(vector);
+
+        if (direction === 'U' || direction == 'D') {
+            this.verticalVectors.push(vector);
+        } else {
+            this.horizontalVectors.push(vector);
+        }
+
+        for (let i = 0; i < length; i++) {
+
             switch (direction) {
                 case 'U':
                     this.currentPosition.y -= 1;
@@ -22,16 +42,21 @@ module.exports = class ManhattanGridRoute {
             }
 
             const { x, y } = this.currentPosition;
+            this.totalDistance++;
 
             this.coords.push({
                 x,
                 y,
                 address: `${x},${y}`,
                 distance: Math.abs(x) + Math.abs(y),
-                currentDirection: `${direction}${distance}`,
+                currentDirection: `${direction}${length}`,
                 directionIndex: i,
+                totalDistance: this.totalDistance,
             });
         }
+
+        // add end to vector
+        vector.end = { ...this.currentPosition };
     }
 
     static createFromDirections(directions = []) {
